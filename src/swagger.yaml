@@ -1,0 +1,218 @@
+swagger: '2.0'
+info:
+  description: This is the TROPS API description
+  version: 1.0.0
+  title: TROPS API
+  termsOfService: http://
+  contact:
+    email: hughnatt@protonmail.com
+  license:
+    name: All rights reserved
+    url: http://
+host: trops.sauton.xyz
+basePath: /
+tags:
+- name: users
+  description: Operations about user
+- name: adverts
+  description: Operations about adverts
+- name: category
+  description: Operations about category
+schemes:
+- https
+paths:
+  /users:
+    post:
+      tags:
+      - users
+      summary: Register a new user
+      operationId: addUser
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: User object to register
+        required: true
+        schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+      responses:
+        201:
+          description: User created
+          schema:
+            type: object
+            properties:
+              user:
+                $ref: '#/definitions/User'
+              token:
+                type: string
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+  /users/login:
+    post:
+      tags:
+      - users
+      summary: Login a user
+      operationId: loginUser
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string   
+      responses:
+        200:
+          description: Login successful
+          schema: 
+            $ref: '#/definitions/User'
+        400:
+          description: Invalid Input
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+
+  /users/me:
+    get:
+      tags:
+      - users
+      summary: Get user profile
+      operationId: getUser
+      produces:
+      - application/json
+      security:
+        - JWT: []
+      responses:
+        200:
+          description: Query successful
+          schema:
+            $ref: '#/definitions/User'
+        401:
+          description: Unauthorized
+    delete:
+      tags:
+      - users
+      summary: Delete current user's profile
+      operationId: deleteUser
+      security:
+      - JWT: []
+      produces:
+      - application/json
+      responses:
+        204:
+          description: User removed succesfully
+        401:
+          description: Unauthorized
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      tags:
+      - users
+      summary: Update current user's profile except password
+      operationId: updateUser
+      security:
+      - JWT: []
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Updated successfully
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: Password update rejected
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/me/password:
+    put:
+      tags:
+      - users
+      summary: Update current user's password
+      operationId: updateUserPassword
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      security:
+      - JWT: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              password:
+                type: string   
+      responses:
+        200:
+          description: Password updated
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/Error'
+
+securityDefinitions:
+  JWT:
+    type: apiKey
+    name: Authorization
+    in: header
+
+definitions:
+  User:
+    type: object
+    properties:
+      _id: 
+        type: string
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      tokens:
+        type: array
+        items:
+          type: object
+          properties:
+            _id:
+              type: string
+            token:
+              type: string
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
