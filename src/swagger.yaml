@@ -18,6 +18,8 @@ tags:
   description: Operations about adverts
 - name: category
   description: Operations about category
+- name: search
+  description: Search and autocomplete operations
 schemes:
 - https
 paths:
@@ -182,6 +184,33 @@ paths:
         500:
           description: Server error
           schema:
+            $ref: '#/definitions/Error' 
+  /search:
+    get:
+      tags:
+      - search
+      summary: Search adverts, parameters in body
+      operationId: doSearch
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      security:
+      - JWT: []
+      parameters:
+        - in : body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SearchQuery'
+      responses:
+        200:
+          description: Search sucess
+          schema:
+            $ref: '#/definitions/SearchResult'
+        500:
+          description: Server error
+          schema:
             $ref: '#/definitions/Error'
 
 securityDefinitions:
@@ -216,3 +245,43 @@ definitions:
     properties:
       error:
         type: string
+
+  SearchQuery:
+    type: object
+    properties:
+      text: 
+        type: string
+      category: 
+        type: string
+      priceMax:
+        type: integer
+      priceMin:
+        type: integer
+  SearchResult:
+    type: array
+    items:
+      $ref: '#/definitions/Advert'
+  Advert:
+    type: object
+    properties:
+      photos:
+        type: array
+        items: {}
+      _id:
+        type: integer
+      title:
+        type: string
+      price:
+        type: integer
+      description:
+        type: string
+      category:
+        type: string
+      owner:
+        type: string
+      startDate:
+        type: object
+      endDate:
+        type: object
+      creationDate:
+        type: object
