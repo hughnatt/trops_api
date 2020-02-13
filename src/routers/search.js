@@ -4,7 +4,7 @@ const Advert = require('../models/Advert')
 const router = express.Router()
 
 
-router.get("/search", async(req,res) => {
+router.post("/search", async(req,res) => {
     try {
         var titleRegex;
         var priceMin;

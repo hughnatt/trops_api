@@ -186,7 +186,7 @@ paths:
           schema:
             $ref: '#/definitions/Error' 
   /search:
-    get:
+    post:
       tags:
       - search
       summary: Search adverts, parameters in body
