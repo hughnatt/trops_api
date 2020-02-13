@@ -184,7 +184,184 @@ paths:
         500:
           description: Server error
           schema:
-            $ref: '#/definitions/Error' 
+            $ref: '#/definitions/Error'
+  /advert:
+    get:
+      tags:
+      - adverts
+      summary: Get all adverts from DB
+      operationId: getAllAdverts
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Get sucess
+          schema:
+            $ref: '#/definitions/Advert'
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      tags:
+      - adverts
+      summary: Add new advert in the DB
+      operationId: createNewAdvert
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+        - in : body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Advert'
+      responses:
+        201:
+          description: Creation succes
+          schema:
+            $ref: '#/definitions/Advert'
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - adverts
+      summary: Delete an advert
+      operationId: deleteAdvertById
+      security:
+      - JWT: []
+      produces:
+      - application/json
+      responses:
+        202:
+          description: Advert removed succesfully
+        401:
+          description: Unauthorized
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /advert/owner:
+    post:
+      tags:
+      - adverts
+      summary: get all advert from an owner
+      operationId: getAdvertByOwner
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+        - in : body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              owner:
+                type: string
+      responses:
+        200:
+          description: Get sucess
+          schema:
+            $ref: '#/definitions/Advert'
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+  /advert/category:
+    post:
+      tags:
+      - adverts
+      summary: Get all advert from a category
+      operationId: getAllAdvertByCategory
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+        - in : body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              category:
+                type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Advert'
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+  /category:
+    get:
+      tags:
+      - category
+      summary: Get all categories from DB
+      operationId: getAllCategories
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Get sucess
+          schema:
+            $ref: '#/definitions/Category'
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      tags:
+      - category
+      summary: Add new category in the DB
+      operationId: createNewCategory
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+        - in : body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              categoryName:
+                type: string
+      responses:
+        201:
+          description: Creation succes
+
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - category
+      summary: Delete a category
+      operationId: deleteCategoryById
+      produces:
+      - application/json
+      responses:
+        202:
+          description: Advert removed succesfully
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
   /search:
     post:
       tags:
@@ -280,8 +457,18 @@ definitions:
       owner:
         type: string
       startDate:
-        type: object
+        type: string
+        format: date
       endDate:
-        type: object
+        type: string
+        format: date
       creationDate:
-        type: object
+        type: string
+        format: date
+  Category:
+    type: object
+    properties:
+      _id:
+        type: integer
+      categoryName:
+        type: string

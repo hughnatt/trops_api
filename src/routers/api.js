@@ -132,7 +132,7 @@ router.get('/advert',async (req,res) => {
     }
 })
 
-router.get('/advert/owner', auth, async (req,res) => { 
+router.post('/advert/owner', auth, async (req,res) => { 
     try{
         if(req.user.email == req.body.owner){ //prevent anyone to get the advert of a given user
             var query = Advert.find({});
@@ -150,7 +150,7 @@ router.get('/advert/owner', auth, async (req,res) => {
     }
 })
 
-router.get('/advert/category',async (req,res) => {
+router.post('/advert/category',async (req,res) => {
     try{
         var query = Advert.find({});
         query.where('category', req.body.category);
@@ -167,7 +167,7 @@ router.get('/advert/category',async (req,res) => {
 })
 
 
-router.delete('/advert/delete', auth, async (req,res) => {
+router.delete('/advert', auth, async (req,res) => {
     try{
         var query = Advert.find({}); // querry to get the advert where his id equal the one in body
         query.where('_id', req.body._id);
@@ -180,14 +180,13 @@ router.delete('/advert/delete', auth, async (req,res) => {
                     if(err){
                         res.status(400).send(err); 
                     }
+                    res.status(202).send({message : "Advert deleted with success"});
                 })
             }
             else{
                 res.status(401).send(err); 
-            }
-            res.status(204).send({message : "Advert deleted with success"}); 
+            } 
         });
-        res.status(202).send({message : "Advert deleted with success"}); 
     }
     catch{
         res.status(400).send({error : error.message})
@@ -216,12 +215,12 @@ router.get('/category',async (req,res) => {
         });            
     }
     catch(error){
-        res.status(404).send({error : error.message})
+        res.status(400).send({error : error.message})
     }
 })
 
 
-router.delete('/category/delete',async (req,res) => { //TODO : Handle the admin's token !!
+router.delete('/category',async (req,res) => { //TODO : Handle the admin's token !!
     try{
         Category.findOneAndRemove({_id: req.body._id},function(err,data)
         {
