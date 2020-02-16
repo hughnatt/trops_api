@@ -6,6 +6,10 @@ const categorySchema = mongoose.Schema({
         type: String,
         required: true,
         trim: true
+    },
+    parent: {
+        type:String,
+        required: false,
     }
 });
 categorySchema.plugin(tree);
