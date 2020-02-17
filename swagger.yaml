@@ -470,5 +470,13 @@ definitions:
     properties:
       _id:
         type: integer
-      categoryName:
+      name:
         type: string
+      subcategories:
+        $ref: '#/definitions/Category'
+    example:
+      _id: "5e3d2b5819bf021b7c5a1222"
+      name: "Sports d'hiver"
+      subcategories:
+        _id: "6fehr58156g1b7c98jk5f"
+        name: "Ski"
