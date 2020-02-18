@@ -1,7 +1,25 @@
 const express = require('express')
+const multer = require('multer')
 const User = require('../models/User')
 const Advert = require('../models/Advert')
 const auth = require('../middleware/auth')
+const fs = require('fs');
+
+const storage =  multer.diskStorage({
+    destination: function (req, file, callback) {
+      fs.mkdir('./images', function(err) {
+          if(err.code != 'EEXIST') {
+              console.log(err.stack)
+
+          } else {
+              callback(null, './images');
+          }
+      })
+    },
+    filename: function (req, file, callback) {
+      callback(null, file.originalname);
+    }
+  });
 
 const router = express.Router()
 
@@ -191,6 +209,17 @@ router.delete('/advert', auth, async (req,res) => {
         res.status(400).send({error : error.message})
     }
 })
+
+router.post('/image',function(req,res){
+    var upload = multer({storage : storage}).single('image');
+    upload(req,res,function(err) {
+        console.log(req.file.filename);
+        if(err) {
+            return res.status(500).send("Error uploading file.");
+        }
+        res.status(200).send("File is uploaded");
+    });
+});
 
 
 module.exports = router
