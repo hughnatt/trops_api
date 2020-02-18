@@ -3,6 +3,7 @@ const multer = require('multer')
 const User = require('../models/User')
 const Advert = require('../models/Advert')
 const auth = require('../middleware/auth')
+const path = require('path')
 const fs = require('fs');
 
 const storage =  multer.diskStorage({
@@ -220,6 +221,36 @@ router.post('/image',function(req,res){
         res.status(200).send("File is uploaded");
     });
 });
+
+
+router.get('/image/:filename', function(req,res){
+    try {
+        console.log(req.params.filename);
+        if(req.params.filename){
+            res.status(200).sendFile(path.join(__dirname,'../../images/',req.params.filename))
+        }
+    } catch(error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
+router.delete('/image/:filename', function(req,res){
+    try {
+        console.log(req.params.filename);
+        if(req.params.filename){
+            fs.unlink(path.join(__dirname,'../../images/',req.params.filename),error =>{
+                if(error){
+                    res.status(500).send({error : error.message})
+                }
+                else{
+                    res.status(200).send("Picture deleted with success")
+                }
+            })
+        }
+    } catch(error) {
+        res.status(404).send({error : error.message})
+    }
+})
 
 
 module.exports = router
