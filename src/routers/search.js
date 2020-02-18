@@ -24,19 +24,17 @@ router.post("/search", async(req,res) => {
             priceMin = 0;
             priceMax = 2000;
         }
-
-        if(req.body.category!=null){
-            category = new RegExp(req.body.category);
-        } else {
-            category = new RegExp(".*");
-        }
-
-
-
-        Advert.find({ title: titleRegex, price: {$gte: priceMin, $lte: priceMax}, category: category} ,function (err, docs) {
-            res.send(docs);
-        })
         
+        console.log(req.body.categories);
+        if (req.body.categories == null || !(req.body.categories instanceof Array)){
+            Advert.find({ title: titleRegex, price: {$gte: priceMin, $lte: priceMax}} ,function (err, docs) {
+                res.send(docs);
+            })
+        } else {
+            Advert.find({ title: titleRegex, price: {$gte: priceMin, $lte: priceMax}, category: { $in: req.body.categories }} ,function (err, docs) {
+                res.send(docs);
+            })
+        }
     }
     catch (error) {
         res.status(500).send({ error : error.message })
