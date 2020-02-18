@@ -26,7 +26,7 @@ router.post("/search", async(req,res) => {
         }
         
         console.log(req.body.categories);
-        if (req.body.categories == null || !(req.body.categories instanceof Array)){
+        if (req.body.categories == null || !(req.body.categories instanceof Array) || req.body.categories.length ==0 ){
             Advert.find({ title: titleRegex, price: {$gte: priceMin, $lte: priceMax}} ,function (err, docs) {
                 res.send(docs);
             })
