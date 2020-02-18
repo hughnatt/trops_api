@@ -34,8 +34,27 @@ async function processCategory(category) {
         }
     }
     return processedCategory;
-
 }
+
+router.get('/category/:id', async (req,res) => {
+    try {
+        console.log(req.params.id);
+        Category.findById(req.params.id, async function (error,category) {
+            if (error) {
+                throw res.status(500).json({error : error.message});
+            } else {
+                if (category != null){
+                    const processedCategory = await processCategory(category)
+                    res.status(200).json(processedCategory);
+                } else {
+                    res.status(404).json({error :"No category for this id"});
+                }
+            }
+        });
+    } catch(error) {
+        res.status(500).send({error : error.message})
+    }
+})
 
 router.post('/category', async (req, res) => { //TODO : handle admin token
     try {
