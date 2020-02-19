@@ -27,22 +27,19 @@ const advertSchema = mongoose.Schema({
     creationDate : {
         type: Date
     },
-    startDate : {
-        type: Date,
-        required: true
-    },
-    endDate : {
-        type: Date,
-        required: true
-    },
     photos : {
         type: Array
     },
     owner : {
         type: String,
         required: true
-    }
-
+    },
+    availability : {
+        type: [{start: Date, end: Date}]
+    },
+    reserved: {
+        type: [Date]
+    },
 })
 
 advertSchema.pre('save', function (next) {

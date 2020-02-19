@@ -275,34 +275,6 @@ paths:
           description: Get error
           schema:
             $ref: '#/definitions/Error'
-  /advert/category:
-    post:
-      tags:
-      - adverts
-      summary: Get all advert from a category
-      operationId: getAllAdvertByCategory
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-        - in : body
-          name: body
-          required: true
-          schema:
-            type: object
-            properties:
-              category:
-                type: string
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/definitions/Advert'
-        400:
-          description: Get error
-          schema:
-            $ref: '#/definitions/Error'
   /category:
     get:
       tags:
