@@ -1,10 +1,6 @@
 const express = require('express')
-const multer = require('multer')
-const User = require('../models/User')
 const Advert = require('../models/Advert')
 const auth = require('../middleware/auth')
-const path = require('path')
-const fs = require('fs');
 
 const router = express.Router()
 
@@ -33,41 +29,6 @@ router.get('/advert',async (req,res) => {
     }
 })
 
-router.post('/advert/owner', auth, async (req,res) => { 
-    try{
-        if(req.user.email == req.body.owner){ //prevent anyone to get the advert of a given user
-            var query = Advert.find({});
-            query.where('owner', req.body.owner);
-            query.exec(function (err, results) {
-                if (err){
-                    res.status(400).send(err); 
-                }
-                res.json(results); 
-            });
-        }
-    }
-    catch{
-        res.status(400).send({error : error.message})
-    }
-})
-
-router.post('/advert/category',async (req,res) => {
-    try{
-        var query = Advert.find({});
-        query.where('category', req.body.category);
-        query.exec(function (err, results) {
-            if (err){
-                res.status(400).send(err); 
-            }
-            res.json(results); 
-        });
-    }
-    catch{
-        res.status(400).send({error : error.message})
-    }
-})
-
-
 router.delete('/advert', auth, async (req,res) => {
     try{
         var query = Advert.find({}); // querry to get the advert where his id equal the one in body
@@ -88,6 +49,25 @@ router.delete('/advert', auth, async (req,res) => {
                 res.status(401).send(err); 
             } 
         });
+    }
+    catch{
+        res.status(400).send({error : error.message})
+    }
+})
+
+
+router.post('/advert/owner', auth, async (req,res) => { 
+    try{
+        if(req.user.email == req.body.owner){ //prevent anyone to get the advert of a given user
+            var query = Advert.find({});
+            query.where('owner', req.body.owner);
+            query.exec(function (err, results) {
+                if (err){
+                    res.status(400).send(err); 
+                }
+                res.json(results); 
+            });
+        }
     }
     catch{
         res.status(400).send({error : error.message})

@@ -1,7 +1,6 @@
 const express = require('express')
 const multer = require('multer')
 const User = require('../models/User')
-const Advert = require('../models/Advert')
 const auth = require('../middleware/auth')
 const path = require('path')
 const fs = require('fs');
