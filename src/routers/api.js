@@ -1,6 +1,5 @@
 const express = require('express')
 const User = require('../models/User')
-const Advert = require('../models/Advert')
 const auth = require('../middleware/auth')
 
 
@@ -106,6 +105,7 @@ router.put('/users/me/password',auth, async (req, res) => {
     }
 })
 
+<<<<<<< HEAD
 
 router.post('/advert', async (req, res) => {
     try {
@@ -163,10 +163,51 @@ router.post('/advert/category',async (req,res) => {
     }
     catch{
         res.status(400).send({error : error.message})
+=======
+router.post('/image',function(req,res){
+    var upload = multer({storage : storage}).single('image');
+    upload(req,res,function(err) {
+        console.log(req.file.filename);
+        if(err) {
+            return res.status(500).send("Error uploading file.");
+        }
+        res.status(200).send("File is uploaded");
+    });
+});
+
+
+router.get('/image/:filename', function(req,res){
+    try {
+        console.log(req.params.filename);
+        if(req.params.filename){
+            res.status(200).sendFile(path.join(__dirname,'../../images/',req.params.filename))
+        }
+    } catch(error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
+router.delete('/image/:filename', function(req,res){
+    try {
+        console.log(req.params.filename);
+        if(req.params.filename){
+            fs.unlink(path.join(__dirname,'../../images/',req.params.filename),error =>{
+                if(error){
+                    res.status(500).send({error : error.message})
+                }
+                else{
+                    res.status(200).send("Picture deleted with success")
+                }
+            })
+        }
+    } catch(error) {
+        res.status(404).send({error : error.message})
+>>>>>>> 560e75698bc04c02ff361cab0846eb9fbc4b2149
     }
 })
 
 
+<<<<<<< HEAD
 router.delete('/advert', auth, async (req,res) => {
     try{
         var query = Advert.find({}); // querry to get the advert where his id equal the one in body
@@ -193,4 +234,6 @@ router.delete('/advert', auth, async (req,res) => {
     }
 })
 
+=======
+>>>>>>> 560e75698bc04c02ff361cab0846eb9fbc4b2149
 module.exports = router
