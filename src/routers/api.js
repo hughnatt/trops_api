@@ -1,25 +1,7 @@
 const express = require('express')
-const multer = require('multer')
 const User = require('../models/User')
 const auth = require('../middleware/auth')
-const path = require('path')
-const fs = require('fs');
 
-const storage =  multer.diskStorage({
-    destination: function (req, file, callback) {
-      fs.mkdir('./images', function(err) {
-          if(err.code != 'EEXIST') {
-              console.log(err.stack)
-
-          } else {
-              callback(null, './images');
-          }
-      })
-    },
-    filename: function (req, file, callback) {
-      callback(null, file.originalname);
-    }
-  });
 
 const router = express.Router()
 
@@ -123,46 +105,8 @@ router.put('/users/me/password',auth, async (req, res) => {
     }
 })
 
-router.post('/image',function(req,res){
-    var upload = multer({storage : storage}).single('image');
-    upload(req,res,function(err) {
-        console.log(req.file.filename);
-        if(err) {
-            return res.status(500).send("Error uploading file.");
-        }
-        res.status(200).send("File is uploaded");
-    });
-});
 
 
-router.get('/image/:filename', function(req,res){
-    try {
-        console.log(req.params.filename);
-        if(req.params.filename){
-            res.status(200).sendFile(path.join(__dirname,'../../images/',req.params.filename))
-        }
-    } catch(error) {
-        res.status(500).send({error : error.message})
-    }
-})
-
-router.delete('/image/:filename', function(req,res){
-    try {
-        console.log(req.params.filename);
-        if(req.params.filename){
-            fs.unlink(path.join(__dirname,'../../images/',req.params.filename),error =>{
-                if(error){
-                    res.status(500).send({error : error.message})
-                }
-                else{
-                    res.status(200).send("Picture deleted with success")
-                }
-            })
-        }
-    } catch(error) {
-        res.status(404).send({error : error.message})
-    }
-})
 
 
 module.exports = router

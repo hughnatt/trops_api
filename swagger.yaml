@@ -8,8 +8,8 @@ info:
     email: hughnatt@protonmail.com
   license:
     name: All rights reserved
-    url: http://
-host: trops.sauton.xyz
+    url: https://
+host: api.trops.space
 basePath: /
 tags:
 - name: users
@@ -20,6 +20,8 @@ tags:
   description: Operations about category
 - name: search
   description: Search and autocomplete operations
+- name: images
+  description: Operations about images
 schemes:
 - https
 paths:
@@ -388,7 +390,73 @@ paths:
           description: Server error
           schema:
             $ref: '#/definitions/Error'
-
+  /image:
+    post:
+      tags:
+      - images
+      summary: Add new advert in the DB
+      operationId: uploadNewImage
+      consumes:
+      - multipart/form-data
+      produces:
+      - application/json
+      parameters:
+        - in : formData
+          name: image
+          required: true
+          type : file
+      responses:
+        200:
+          description: Creation succes
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+  /image/{filename}:
+    get:
+      tags:
+      - images
+      summary: Get a given advert from filename
+      operationId: getImageFromFilename
+      consumes:
+      - multipart/form-data
+      parameters:
+        - in: path
+          name: filename
+          required: true
+          type: string
+          description: "name of the file"
+      responses:
+        200:
+          description: Get sucess
+          schema:
+           type: file
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - images
+      summary: Delete a given image from filename
+      operationId: deleteImageFromFilename
+      consumes:
+      - multipart/form-data
+      produces:
+      - application/json
+      parameters:
+        - in: path
+          name: filename
+          required: true
+          type: string
+          description: "name of the file"
+      responses:
+        200:
+          description: Get sucess
+        400:
+          description: Get error
+          schema:
+            $ref: '#/definitions/Error'
 securityDefinitions:
   JWT:
     type: apiKey
