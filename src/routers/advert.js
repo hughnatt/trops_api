@@ -34,20 +34,25 @@ router.delete('/advert', auth, async (req,res) => {
         var query = Advert.find({}); // querry to get the advert where his id equal the one in body
         query.where('_id', req.body._id);
         query.exec(function (err, results) {
-            if (err){
+            try {
+                if (err){
                 res.status(400).send(err); 
+                }
+                else if(req.user.email == results[0].owner){ //once the good advert get, deletion only if current user mail == owner mail to prevent abusive deletion
+                    Advert.deleteOne({ '_id': req.body._id}, function (err) {
+                        if(err){
+                            res.status(400).send(err); 
+                        }
+                        res.status(202).send({message : "Advert deleted with success"});
+                    })
+                }
+                else{
+                    res.status(401).send(err); 
+                } 
             }
-            else if(req.user.email == results[0].owner){ //once the good advert get, deletion only if current user mail == owner mail to prevent abusive deletion
-                Advert.deleteOne({ '_id': req.body._id}, function (err) {
-                    if(err){
-                        res.status(400).send(err); 
-                    }
-                    res.status(202).send({message : "Advert deleted with success"});
-                })
+            catch(err){
+                res.status(500).send(err);
             }
-            else{
-                res.status(401).send(err); 
-            } 
         });
     }
     catch{
