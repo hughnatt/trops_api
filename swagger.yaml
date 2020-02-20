@@ -230,11 +230,18 @@ paths:
           description: Get error
           schema:
             $ref: '#/definitions/Error'
+  /advert/{id}:
     delete:
       tags:
       - adverts
-      summary: Delete an advert
+      summary: Delete an advert by Id
       operationId: deleteAdvertById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: "Advert ID"
       security:
       - JWT: []
       produces:
@@ -248,7 +255,34 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/Error'
-            
+    put:
+      tags:
+      - adverts
+      summary: Update an advert by Id
+      operationId: updateAdvertById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: "Advert ID"
+      security:
+      - JWT: []
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Advert updated succesfully
+        401:
+          description: Unauthorized
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Server error
+          schema:
+            $ref: '#/definitions/Error'
   /advert/owner:
     post:
       tags:

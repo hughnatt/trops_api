@@ -96,7 +96,7 @@ router.put('/advert/:id',auth,async(req,res) => { //TODO : Improve the way to ha
                         if (err) {
                             res.status(400).send(err);
                         } else {
-                            res.status(200).send();
+                            res.status(200).send({message : "Advert update with success"});
                         }
                     });
                 }
