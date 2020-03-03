@@ -5,7 +5,7 @@ const searchRouter = require('./routers/search')
 const categoryRouter = require('./routers/category')
 const imageRouter = require('./routers/image')
 const advertRouter = require('./routers/advert')
-const statRouter = require('./routers/stat')
+const statRouter = require('./routers/stats')
 require('./db/db')
 
 const app = express()
