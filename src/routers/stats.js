@@ -8,15 +8,15 @@ router.get('/stats/storage',function(req,res){
     try{
 
         var imagesCount = Number(execSync("find ./images -type f | wc -l").toString());
-        var usedSpace = Number(execSync("du -bc ./images | tail -1 | awk '{print $1;}'").toString());
-        var availableSpace = Number(execSync(`df | grep ${partition} | tail -1 | awk '{print $4;}'`).toString());
+        var usedSpace = Number(execSync("du -c ./images | tail -1 | awk '{print $1;}'").toString());
+        var availableSpace = Number(execSync(`df | grep -w ${partition} | tail -1 | awk '{print $4;}'`).toString());
 
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(
             {
                 "images_count" : imagesCount,
-                "used_space" : usedSpace/1000,
-                "available_space" : availableSpace/1000
+                "used_space" : usedSpace,
+                "available_space" : availableSpace
             }
         ))
     }
