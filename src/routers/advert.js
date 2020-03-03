@@ -39,7 +39,7 @@ router.delete('/advert/:id', auth, async (req,res) => {
                     res.status(400).send(err); 
                 }
                 else if(req.user.email == results[0].owner){ //once the good advert get, deletion only if current user mail == owner mail to prevent abusive deletion
-                    Advert.deleteOne({ '_id': req.body._id}, function (err) {
+                    Advert.deleteOne({ '_id': req.params._id}, function (err) {
                         if(err){
                             res.status(400).send(err); 
                         }
