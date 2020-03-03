@@ -9,7 +9,7 @@ router.get('/stats/storage',function(req,res){
 
         var imagesCount = Number(execSync("find ./images -type f | wc -l").toString());
         var usedSpace = Number(execSync("du -bc ./images | tail -1 | awk '{print $1;}'").toString());
-        var availableSpace = Number(execSync(`df ${partition} | tail -1 | awk '{print $4;}'`).toString());
+        var availableSpace = Number(execSync(`df | grep ${partition} | tail -1 | awk '{print $4;}'`).toString());
 
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(
