@@ -15,8 +15,8 @@ router.get('/stats/storage',function(req,res){
         res.send(JSON.stringify(
             {
                 "images_count" : imagesCount,
-                "used_space" : usedSpace,
-                "available_space" : availableSpace
+                "used_space" : usedSpace/1000,
+                "available_space" : availableSpace/1000
             }
         ))
     }
