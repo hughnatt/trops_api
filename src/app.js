@@ -5,7 +5,7 @@ const searchRouter = require('./routers/search')
 const categoryRouter = require('./routers/category')
 const imageRouter = require('./routers/image')
 const advertRouter = require('./routers/advert')
-const statRouter = require('./routers/stats')
+const statsRouter = require('./routers/stats')
 require('./db/db')
 
 const app = express()
@@ -21,7 +21,7 @@ app.use(searchRouter)
 app.use(categoryRouter)
 app.use(imageRouter)
 app.use(advertRouter)
-app.use(statRouter)
+app.use(statsRouter)
 
 
 app.listen(port, () => {
