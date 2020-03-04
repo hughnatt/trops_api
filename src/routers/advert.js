@@ -17,15 +17,40 @@ router.post('/advert', async (req, res) => {
 
 router.get('/advert',async (req,res) => {
     try{
-        Advert.find().sort({'creationDate' : -1}).exec(function(err, advert){
-            if (err){
-                res.status(400).send(err); 
-            }
-            res.json(advert);   
+        const totalCount = await Advert.estimatedDocumentCount()
+        res.set('X-Total-Count',totalCount)
+
+        if (!req.query.page){
+            req.query.page = 0
+        }
+        if (!req.query.size || req.query.size <= 0){
+            req.query.page = 0
+            req.query.size = 20
+        }
+        const skip = req.query.page * req.query.size
+        const limit = parseInt(req.query.size,10)
+        var sortField = 'creationDate'
+        var sortOrder = -1
+        if (req.query.sort){
+            let sortSplit = req.query.sort.split(',')
+            sortField = sortSplit[0]
+            sortOrder = parseInt(sortSplit[1],10)
+        }
+        let sort = {}
+        sort[sortField] = sortOrder
+
+        Advert.find()
+              .skip(skip)
+              .limit(limit)
+              .sort(sort)
+              .exec(function(err, adverts){
+                if (err){
+                    res.status(400).send(err); 
+                }
+                res.json(adverts);   
         })
-    }
-    catch(error){
-        res.status(400).send({error : error.message})
+    } catch(error){
+        res.status(500).send({error : error.message})
     }
 })
 
