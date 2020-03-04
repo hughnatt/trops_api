@@ -45,6 +45,48 @@ router.get('/users', adminAuth, async (req,res) => {
     }
 })
 
+router.get('/users/:id', adminAuth, async(req,res) => {
+    try {
+        User.findById(req.params.id, function(err,user) {
+            if (err) {
+                res.status(400).send({error : err})
+            } else {
+                if (!user){
+                    res.status(404).send({error : "ID doesn't match any user"})
+                } else {
+                    res.status(200).send(user)
+                }
+            }
+        })
+    } catch (error){
+        res.status(500).send({error : error})
+    }
+})
+
+router.delete('/users/:id', adminAuth, async(req,res) => {
+    try {
+        User.findById(req.params.id, function(err,user) {
+            if (err) {
+                res.status(500).send({error : "Query error, retry later"})
+            } else {
+                if (!user){
+                    res.status(404).send({error : "ID doesn't match any user"})
+                } else {
+                    User.deleteOne({_id: req.params.id}, function(err){
+                        if (err){
+                            res.status(500).send({error : "Deletion error, retry later"})
+                        } else {
+                            res.status(204).send(user)
+                        }
+                    })
+                }
+            }
+        })
+    } catch (error){
+        res.status(500).send({error : error})
+    }
+})
+
 router.post('/users', async (req, res) => {
     // Create a new user
     try {
