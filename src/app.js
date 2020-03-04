@@ -6,6 +6,7 @@ const categoryRouter = require('./routers/category')
 const imageRouter = require('./routers/image')
 const advertRouter = require('./routers/advert')
 const adminRouter = require('./routers/admin')
+const statsRouter = require('./routers/stats')
 require('./db/db')
 
 const app = express()
@@ -22,6 +23,7 @@ app.use(categoryRouter)
 app.use(imageRouter)
 app.use(advertRouter)
 app.use(adminRouter)
+app.use(statsRouter)
 
 
 app.listen(port, () => {
