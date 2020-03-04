@@ -1,9 +1,49 @@
 const express = require('express')
 const User = require('../models/User')
 const auth = require('../middleware/auth')
-
+const adminAuth = require('../middleware/admin-auth.js')
 
 const router = express.Router()
+
+
+router.get('/users', adminAuth, async (req,res) => {
+    try {
+        const totalCount = await User.estimatedDocumentCount()
+        res.set('X-Total-Count',totalCount)
+
+        if (!req.query.page){
+            req.query.page = 0
+        }
+        if (!req.query.size || req.query.size <= 0){
+            req.query.page = 0
+            req.query.size = 20
+        }
+        const skip = req.query.page * req.query.size
+        const limit = parseInt(req.query.size,10)
+        var sortField = '_id'
+        var sortOrder = 1
+        if (req.query.sort){
+            let sortSplit = req.query.sort.split(',')
+            sortField = sortSplit[0]
+            sortOrder = parseInt(sortSplit[1],10)
+        }
+        let sort = {}
+        sort[sortField] = sortOrder
+
+        User.find()
+            .skip(skip)
+            .limit(limit)
+            .sort(sort)
+            .exec(function(err,users){
+                if (err) {
+                    res.status(400).send(err);
+                }
+                res.status(200).send(users);
+            })
+    } catch (error) {
+        res.status(500).send({error : error.message})
+    }
+})
 
 router.post('/users', async (req, res) => {
     // Create a new user
