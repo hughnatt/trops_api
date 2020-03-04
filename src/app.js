@@ -1,10 +1,11 @@
 const express = require('express')
 const port = process.env.PORT
-const apiRouter = require('./routers/api')
+const usersRouter = require('./routers/users')
 const searchRouter = require('./routers/search')
 const categoryRouter = require('./routers/category')
 const imageRouter = require('./routers/image')
 const advertRouter = require('./routers/advert')
+const adminRouter = require('./routers/admin')
 require('./db/db')
 
 const app = express()
@@ -15,13 +16,14 @@ app.use(function(req, res, next) {
   next();
 });
 app.use(express.json())
-app.use(apiRouter)
+app.use(usersRouter)
 app.use(searchRouter)
 app.use(categoryRouter)
 app.use(imageRouter)
 app.use(advertRouter)
+app.use(adminRouter)
 
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+    console.log(`[TROPS-API] Server running on port ${port}`)
 })
