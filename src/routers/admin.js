@@ -77,10 +77,65 @@ router.get('/admin', adminAuth, async(req,res) => {
                 res.json(admins).send
             })
     } catch (error){
-        res.status(400).send({error : error.message})
+        res.status(500).send({error : error.message})
     }
 })
 
+/**
+ * Get specified admin
+ */
+router.get('/admin/:id',adminAuth, async(req,res) => {
+    try {
+        Admin.findById(req.params.id, async function(error, admin){
+            if (error) {
+                throw res.status(500).json({error : error.message});
+            } else {
+                if (admin != null){
+                    res.status(200).send(admin);
+                } else {
+                    res.status(404).send({error :"Admin ID not found"});
+                }
+            }
+        })
+    } catch (error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
+/**
+ * Deleted specified admin
+ */
+router.delete('/admin/:id',adminAuth, async(req,res) => {
+    try {
+        Admin.findById(req.params.id, async function(error, admin){
+            if (error) {
+                throw res.status(500).json({error : error.message});
+            } else {
+                if (admin != null){
+                    if ((req.admin._id.toString()) !== (req.params.id)){
+                        Admin.deleteOne({_id : req.params.id}, function(error) {
+                            if (error){
+                                res.status(500).send({error : "Deletion error, retry later"})
+                            } else {
+                                res.status(204).send()
+                            }
+                        })
+                    } else {
+                        res.status(400).send({error : "Cannot delete current admin"});
+                    }
+                } else {
+                    res.status(404).send({error :"Admin ID not found"});
+                }
+            }
+        })
+    } catch (error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
+/**
+ * Logout admin
+ */
 router.post('/admin/logout', adminAuth, async (req, res) => {
     // Log user out of the application
     try {
@@ -94,6 +149,9 @@ router.post('/admin/logout', adminAuth, async (req, res) => {
     }
 })
 
+/**
+ * Logoutall admin
+ */
 router.post('/admin/logoutall', adminAuth, async(req, res) => {
     // Log user out of all devices
     try {
@@ -104,5 +162,6 @@ router.post('/admin/logoutall', adminAuth, async(req, res) => {
         res.status(500).send({error : error.message})
     }
 })
+
 
 module.exports = router
