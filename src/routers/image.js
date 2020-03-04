@@ -2,6 +2,9 @@ const express = require('express')
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs');
+const domain = process.env.DOMAIN
+const crypto = require('crypto');
+const shasum = crypto.createHash('sha1');
 
 const router = express.Router()
 
@@ -17,7 +20,9 @@ const storage =  multer.diskStorage({
       })
     },
     filename: function (req, file, callback) {
-      callback(null, file.originalname);
+      var hash = shasum.update(file.originalname,'utf8').digest('hex')
+      var extension = path.extname(file.originalname)
+      callback(null, hash+extension);
     }
 });
 
@@ -26,11 +31,10 @@ const storage =  multer.diskStorage({
 router.post('/image',function(req,res){ //function to upload an image to the server
     var upload = multer({storage : storage}).single('image'); //upload file passed to the key 'image' to server
     upload(req,res,function(err) {
-        console.log(req.file.filename);
         if(err) { //if the upload is a failure
             return res.status(500).send("Error uploading file.");
         }
-        res.status(200).send("File is uploaded"); //the upload is a success
+        res.status(200).send(domain + "/image/" + req.file.filename); //the upload is a success
     });
 });
 
