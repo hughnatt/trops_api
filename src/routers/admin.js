@@ -39,6 +39,17 @@ router.post('/admin', adminAuth, async (req, res) => {
 })
 
 /**
+ * Get current admin
+ */
+router.get('/admin/me', adminAuth, async(req,res) => {
+    try {
+        res.status(200).send(req.admin)
+    } catch (error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
+/**
  * Get all admins
  */
 router.get('/admin', adminAuth, async(req,res) => {
