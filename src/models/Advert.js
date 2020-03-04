@@ -40,6 +40,10 @@ const advertSchema = mongoose.Schema({
     reserved: {
         type: [Date]
     },
+    location: {
+        type: String,
+        required: true
+    }
 })
 
 advertSchema.pre('save', function (next) {
