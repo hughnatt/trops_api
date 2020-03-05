@@ -4,17 +4,6 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-router.post('/advert', async (req, res) => {
-    try {
-        const advert = new Advert(req.body)
-        await advert.save()
-        res.status(201).send()
-    }
-    catch (error) {
-        res.status(400).send({ error : error.message })
-    }
-})
-
 router.get('/advert',async (req,res) => {
     try{
         const totalCount = await Advert.estimatedDocumentCount()
@@ -54,89 +43,127 @@ router.get('/advert',async (req,res) => {
     }
 })
 
+router.post('/advert', auth, async (req, res) => {
+    try {
+        const advert = new Advert(req.body)
+        await advert.save()
+        res.status(201).send()
+    }
+    catch (error) {
+        res.status(400).send({ error : error.message })
+    }
+})
+
+router.get('/advert/:id', async (req, res) => {
+    try {
+        Advert.findById(req.params.id, async function(error,advert){
+            if (error){
+                res.status(400).send({error : error.message})
+            } else {
+                if (!advert){
+                    res.status(404).send({error : "ID doesn't match any advert"})
+                } else {
+                    res.status(200).send(advert)
+                }
+            }
+        })
+    } catch (error) {
+        res.status(500).send({error : error.message})
+    }
+});
+
 router.delete('/advert/:id', auth, async (req,res) => {
     try{
-        var query = Advert.find({}); // querry to get the advert where his id equal the one in body
-        query.where('_id', req.params.id);
-        query.exec(function (err, results) {
-            try {
-                if (err){
-                    res.status(400).send(err); 
+        Advert.findById(req.params.id, function(error,advert){
+            if (error){
+                res.status(400).send({error : error.message})
+            } else {
+                if (!advert){
+                    res.status(404).send({error : "ID doesn't match any advert"})
+                } else {
+                    if (req.isAdmin || (req.user.email === advert.owner)){
+                        Advert.deleteOne({ '_id': req.params.id}, function (err) {
+                            if(err){
+                                res.status(400).send(err); 
+                            }
+                            res.status(202).send();
+                        })
+                    } else {
+                        res.status(401).send({error : "Only advert owner can delete it"})
+                    }
                 }
-                else if(req.user.email == results[0].owner){ //once the good advert get, deletion only if current user mail == owner mail to prevent abusive deletion
-                    Advert.deleteOne({ '_id': req.params.id}, function (err) {
-                        if(err){
-                            res.status(400).send(err); 
-                        }
-                        res.status(202).send({message : "Advert deleted with success"});
-                    })
-                }
-                else{
-                    res.status(401).send(err); 
-                } 
             }
-            catch(err){
-                res.status(500).send(err);
-            }
-        });
-    }
-    catch{
-        res.status(400).send({error : error.message})
+        })
+    } catch (error){
+        res.status(500).send({error : error.message})
     }
 })
 
 
+router.put('/advert/:id',auth,async(req,res) => { 
+    try{
+        Advert.findById(req.params.id, function(error,advert){
+            if (error){
+                res.status(400).send({error : error.message})
+            } else {
+                if (!advert){
+                    res.status(404).send({error : "ID doesn't match any advert"})
+                } else {
+                    if (req.isAdmin || (req.user.email === advert.owner)){
+                        Advert.updateOne({_id : req.params.id}, req.body, {new : true}, function(error, updatedAdvert) {
+                            if (error) {
+                                res.status(400).send({error : error.message});
+                            } else {
+                                res.status(200).send(updatedAdvert);
+                            }
+                        })
+                    } else {
+                        res.status(401).send()
+                    }
+                }
+            }
+        })
+    } catch(error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
+router.post('/advert/owner/:id', auth, async (req,res) => { 
+    try{
+        if (req.isAdmin || req.user.email === req.params.id) {
+            Advert.find({owner : req.params.id}).exec(function (error, adverts) {
+                if (error){
+                    res.status(400).send(error); 
+                } else {
+                    res.status(200).send(adverts); 
+                }
+            });
+        } else {
+            res.status(401).send()
+        }
+    } catch(error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
+// Deprecated, do not use
 router.post('/advert/owner', auth, async (req,res) => { 
     try{
-        if(req.user.email == req.body.owner){ //prevent anyone to get the advert of a given user
-            var query = Advert.find({});
-            query.where('owner', req.body.owner);
-            query.exec(function (err, results) {
-                if (err){
-                    res.status(400).send(err); 
+        if (req.isAdmin || req.user.email == req.body.owner) {
+            Advert.find({owner : req.body.owner}).exec(function (error, adverts) {
+                if (error){
+                    res.status(400).send(error); 
+                } else {
+                    res.status(200).send(adverts); 
                 }
-                res.json(results); 
             });
+        } else {
+            res.status(401).send()
         }
-    }
-    catch{
-        res.status(400).send({error : error.message})
+    } catch(error) {
+        res.status(500).send({error : error.message})
     }
 })
 
-router.put('/advert/:id',auth,async(req,res) => { //TODO : Improve the way to handle user TOKEN
-    try{
-
-        var query = Advert.find({}); // querry to get the advert where his id equal the one in params
-        query.where('_id', req.params.id);
-        query.exec(function (err, results) {
-            try {
-                if (err || results.length == 0){ //if any error or no results
-                    res.status(400).send(err); 
-                }
-                else if(req.user.email == results[0].owner){ //once the good advert get, deletion only if current user mail == owner mail to prevent abusive deletion
-                    
-                    const filter = { _id: req.params.id };
-                    Advert.updateOne(filter,req.body,{new : true}, function(err, result) {
-                        if (err) {
-                            res.status(400).send(err);
-                        } else {
-                            res.status(200).send({message : "Advert update with success"});
-                        }
-                    });
-                }
-                else{
-                    res.status(401).send(err); 
-                } 
-            }
-            catch(err){
-                res.status(500).send(err);
-            }
-        })        
-    }
-    catch{
-        res.status(400).send({error : error.message})
-    }
-})
 
 module.exports = router
