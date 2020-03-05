@@ -99,7 +99,7 @@ router.get('/admin/:id',adminAuth, async(req,res) => {
     try {
         Admin.findById(req.params.id, async function(error, admin){
             if (error) {
-                throw res.status(500).json({error : error.message});
+                res.status(500).json({error : error.message});
             } else {
                 if (admin != null){
                     res.status(200).send(admin);
