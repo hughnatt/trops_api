@@ -4,7 +4,7 @@ const path = require('path')
 const fs = require('fs');
 const domain = process.env.DOMAIN
 const crypto = require('crypto');
-const shasum = crypto.createHash('sha1');
+//const shasum = crypto.createHash('sha1');
 
 const router = express.Router()
 
@@ -20,6 +20,7 @@ const storage =  multer.diskStorage({
       })
     },
     filename: function (req, file, callback) {
+      var shasum = crypto.createHash('sha1');
       var hash = shasum.update(file.originalname,'utf8').digest('hex')
       var extension = path.extname(file.originalname)
       callback(null, hash+extension);
