@@ -54,6 +54,24 @@ router.get('/advert',async (req,res) => {
     }
 })
 
+router.get('/advert/:id', async (req, res) => {
+    try {
+        Advert.findById(req.params.id, async function(error,advert){
+            if (error){
+                res.status(500).send({error : error.message})
+            } else {
+                if (!advert){
+                    res.status(404).send({error : "ID doesn't match any advert"})
+                } else {
+                    res.status(200).send(advert)
+                }
+            }
+        })
+    } catch (error) {
+        res.status(500).send({error : error.message})
+    }
+});
+
 router.delete('/advert/:id', auth, async (req,res) => {
     try{
         var query = Advert.find({}); // querry to get the advert where his id equal the one in body
