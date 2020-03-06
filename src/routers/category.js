@@ -159,10 +159,10 @@ router.delete('/category/:id', auth, async (req,res) => {
             res.status(401).send()
         } else {
             Category.findOneAndRemove({_id: req.params.id},function(error,data){
-                if(err) {
+                if(error) {
                     res.status(400).send(error); 
                 } else {
-                    res.status(202).send(); 
+                    res.status(204).send(); 
                 }
             });
         }
