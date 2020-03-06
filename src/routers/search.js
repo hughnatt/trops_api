@@ -63,15 +63,15 @@ router.post("/search", async(req,res) => {
                     title: titleRegex, 
                     price: {$gte: priceMin, $lte: priceMax}, 
                     category: { $in: req.body.categories },
-                    // location: {
-                    //     $near: {
-                    //         $geometry: {
-                    //             type:"Point",
-                    //             coordinates: location
-                    //         },
-                    //         $maxDistance: distance
-                    //     }
-                    // }
+                    location: {
+                        $near: {
+                            $geometry: {
+                                type:"Point",
+                                coordinates: location
+                            },
+                            $maxDistance: distance
+                        }
+                    }
                 } 
                 ,function (err, docs) {
                 res.send(docs);
