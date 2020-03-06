@@ -10,6 +10,8 @@ router.post("/search", async(req,res) => {
         var priceMin;
         var priceMax;
         var category;
+        var location;
+        var distance;
 
         if (req.body.text != null){
             titleRegex = new RegExp(req.body.text,"i");
@@ -24,14 +26,54 @@ router.post("/search", async(req,res) => {
             priceMin = 0;
             priceMax = 2000;
         }
+
+        if(req.body.location != null && req.body.distance != null){
+            location = req.body.location;
+            distance = req.body.distance;
+        }
+        else{
+            location = [0.0, 0.0];
+            distance = Number.MAX_SAFE_INTEGER;
+        }
         
         console.log(req.body.categories);
+        console.log("loc: " + location);
+
         if (req.body.categories == null || !(req.body.categories instanceof Array) || req.body.categories.length ==0 ){
-            Advert.find({ title: titleRegex, price: {$gte: priceMin, $lte: priceMax}} ,function (err, docs) {
-                res.send(docs);
-            })
+            Advert.find(
+                { 
+                    title: titleRegex, 
+                    price: {$gte: priceMin, $lte: priceMax},
+                    location: {
+                        $near: {
+                            $geometry: {
+                                type:"Point",
+                                coordinates: location
+                            },
+                            $maxDistance: distance
+                        }
+                    }
+                }
+                ,function (err, docs) {
+                    res.send(docs);
+                })
         } else {
-            Advert.find({ title: titleRegex, price: {$gte: priceMin, $lte: priceMax}, category: { $in: req.body.categories }} ,function (err, docs) {
+            Advert.find(
+                { 
+                    title: titleRegex, 
+                    price: {$gte: priceMin, $lte: priceMax}, 
+                    category: { $in: req.body.categories },
+                    // location: {
+                    //     $near: {
+                    //         $geometry: {
+                    //             type:"Point",
+                    //             coordinates: location
+                    //         },
+                    //         $maxDistance: distance
+                    //     }
+                    // }
+                } 
+                ,function (err, docs) {
                 res.send(docs);
             })
         }
