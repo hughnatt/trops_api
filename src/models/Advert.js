@@ -41,12 +41,11 @@ const advertSchema = mongoose.Schema({
         type: [Date]
     },
     location: {
-        type: {
-            label: String,
-            city: String,
-            postcode: String,
-            coordinates: Array,
-        }, 
+        label: String,
+        type: {type: String},
+        city: String,
+        postcode: String,
+        coordinates: Array
     }
 })
 
@@ -54,6 +53,13 @@ advertSchema.pre('save', function (next) {
     const advert = this
     advert.location.type = "Point"
     advert.creationDate = Date.now()
+    next()
+})
+
+advertSchema.pre('updateOne', function (next) {
+    const advert = this
+    console.log(this.location)
+    advert._update.location.type = "Point"
     next()
 })
 
