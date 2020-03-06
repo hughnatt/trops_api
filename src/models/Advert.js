@@ -42,12 +42,12 @@ const advertSchema = mongoose.Schema({
     },
     location: {
         required: true,
-        type: [{
+        type: {
             label: String,
             city: String,
             postcode: String,
             coordinates: Array
-        }]
+        }
     }
 })
 
