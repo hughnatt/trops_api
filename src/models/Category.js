@@ -10,6 +10,14 @@ const categorySchema = mongoose.Schema({
     parent: {
         type:String,
         required: false,
+    },
+    thumbnail: {
+        type:String,
+        required: false,
+    },
+    description: {
+        type: String,
+        required: false,
     }
 });
 categorySchema.plugin(tree);

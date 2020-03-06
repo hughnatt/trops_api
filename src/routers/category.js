@@ -1,5 +1,6 @@
 const express = require('express')
 const Category = require('../models/Category')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
@@ -13,7 +14,7 @@ router.get('/category', async (req,res) => {
             response.push(pCat);
         };
 
-        res.json(response);
+        res.status(200).send(response);
     }
     catch(error){
         res.status(400).send({error : error.message})
@@ -22,8 +23,10 @@ router.get('/category', async (req,res) => {
 
 async function processCategory(category) {
     var processedCategory = {};
-    processedCategory.name = category.name;
     processedCategory._id = category._id;
+    processedCategory.name = category.name;
+    processedCategory.description = category.description;
+    processedCategory.thumbnail = category.thumbnail;
     
     const subcategories = await category.getChildren();
 
@@ -36,9 +39,81 @@ async function processCategory(category) {
     return processedCategory;
 }
 
+router.get('/category/list', async(req,res) => {
+    try {
+        const totalCount = await Category.estimatedDocumentCount()
+        res.set('X-Total-Count',totalCount)
+
+        if (!req.query.page){
+            req.query.page = 0
+        }
+        if (!req.query.size || req.query.size <= 0){
+            req.query.page = 0
+            req.query.size = 20
+        }
+        const skip = req.query.page * req.query.size
+        const limit = parseInt(req.query.size,10)
+        var sortField = '_id'
+        var sortOrder = -1
+        if (req.query.sort){
+            let sortSplit = req.query.sort.split(',')
+            sortField = sortSplit[0]
+            sortOrder = parseInt(sortSplit[1],10)
+        }
+        let sort = {}
+        sort[sortField] = sortOrder
+
+        Category.find()
+            .skip(skip)
+            .limit(limit)
+            .sort(sort)
+            .exec(function(error, categories){
+                if (error){
+                    res.status(400).send(error)
+                } else {
+                    res.status(200).send(categories)
+                }
+            })
+    } catch (error){
+        res.status(500).send({error : error.message})
+    }
+})
+
+router.get('/category/list/:id', async(req,res) => {
+    try {
+        Category.findById(req.params.id, function(error, category) {
+            if (error){
+                res.status(400).send({error : error.message});
+            } else {
+                if (!category){
+                    res.status(404).send({error : "ID doesn't match any category"})
+                } else {
+                    res.status(200).send(category)
+                }
+            }
+        })
+    } catch (error){
+        res.status(500).send();
+    }
+})
+
+router.post('/category', auth, async (req, res) => {
+    try {
+        if (!req.isAdmin){
+            res.status(401).send()
+        } else {
+            const category = new Category(req.body)
+            await category.save()
+            res.status(201).send()
+        }
+    }
+    catch (error) {
+        res.status(500).send({ error : error.message })
+    }
+})
+
 router.get('/category/:id', async (req,res) => {
     try {
-        console.log(req.params.id);
         Category.findById(req.params.id, async function (error,category) {
             if (error) {
                 throw res.status(500).json({error : error.message});
@@ -56,29 +131,44 @@ router.get('/category/:id', async (req,res) => {
     }
 })
 
-router.post('/category', async (req, res) => { //TODO : handle admin token
+router.put('/category/:id', auth, async(req,res) => {
     try {
-        const category = new Category(req.body)
-        await category.save()
-        res.status(201).send()
-    }
-    catch (error) {
-        res.status(400).send({ error : error.message })
+        if (!req.isAdmin){
+            res.status(401).send();
+        } else {
+            Category.findByIdAndUpdate(
+                req.params.id, 
+                req.body, 
+                {new: true}, 
+                (error, category) => {
+                    if (error) {
+                        return res.status(400).send({error : error.message});
+                    } else {
+                        return res.status(200).send(category);
+                    }
+                })
+        }
+    } catch(error){
+        res.status(500).send({error : error.message})
     }
 })
 
-router.delete('/category',async (req,res) => { //TODO : Handle the admin's token !!
+router.delete('/category/:id', auth, async (req,res) => {
     try{
-        Category.findOneAndRemove({_id: req.body._id},function(err,data)
-        {
-            if(err){
-                res.status(400).send(err); 
-            }
-        });
-        res.status(202).send({message : "Category deleted with success"}); 
+        if (!req.isAdmin){
+            res.status(401).send()
+        } else {
+            Category.findOneAndRemove({_id: req.params.id},function(error,data){
+                if(err) {
+                    res.status(400).send(error); 
+                } else {
+                    res.status(202).send(); 
+                }
+            });
+        }
     }
     catch{
-        res.status(400).send({error : error.message})
+        res.status(500).send({error : error.message})
     }
 })
 
