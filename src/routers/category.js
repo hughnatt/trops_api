@@ -158,11 +158,20 @@ router.delete('/category/:id', auth, async (req,res) => {
         if (!req.isAdmin){
             res.status(401).send()
         } else {
-            Category.findOneAndRemove({_id: req.params.id},function(error,data){
+            Category.findById(req.params.id,function(error,category){
                 if(error) {
-                    res.status(400).send(error); 
+                    res.status(400).send({error : error.message});
                 } else {
-                    res.status(204).send(); 
+                    if (!category){
+                        res.status(404).send()
+                    } else {
+                        try {
+                            deleteCategory(category)
+                            res.status(204).send(); 
+                        } catch (error){
+                            res.status(500).send({error : error.message})
+                        }
+                    }
                 }
             });
         }
@@ -171,5 +180,16 @@ router.delete('/category/:id', auth, async (req,res) => {
         res.status(500).send({error : error.message})
     }
 })
+
+
+async function deleteCategory(category){
+    categories = category.getChildren();
+    if (categories.length > 0){
+        for (cat in categories){
+            await deleteChildren(cat)
+        }
+    }
+    await category.deleteOne()
+}
 
 module.exports = router

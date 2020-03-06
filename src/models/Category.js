@@ -22,7 +22,6 @@ const categorySchema = mongoose.Schema({
 });
 categorySchema.plugin(tree);
 
-
 const Category = mongoose.model('Category', categorySchema);
 
 module.exports = Category
