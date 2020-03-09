@@ -7,10 +7,6 @@ const categorySchema = mongoose.Schema({
         required: true,
         trim: true
     },
-    parent: {
-        type:String,
-        required: false,
-    },
     thumbnail: {
         type:String,
         required: false,

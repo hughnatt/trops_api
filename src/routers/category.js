@@ -102,6 +102,10 @@ router.post('/category', auth, async (req, res) => {
         if (!req.isAdmin){
             res.status(401).send()
         } else {
+            //Remove empty parent field
+            if (req.body.parent != null && req.body.parent === ""){
+                delete req.body.parent;
+            }
             const category = new Category(req.body)
             await category.save()
             res.status(201).send()
