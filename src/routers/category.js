@@ -140,6 +140,10 @@ router.put('/category/:id', auth, async(req,res) => {
         if (!req.isAdmin){
             res.status(401).send();
         } else {
+            //Remove empty parent field
+            if (req.body.parent != null && req.body.parent === ""){
+                delete req.body.parent;
+            }
             Category.findByIdAndUpdate(
                 req.params.id, 
                 req.body, 
