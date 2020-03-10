@@ -81,7 +81,7 @@ router.delete('/advert/:id', auth, async (req,res) => {
                 if (!advert){
                     res.status(404).send({error : "ID doesn't match any advert"})
                 } else {
-                    if (req.isAdmin || (req.user.email === advert.owner)){
+                    if (req.isAdmin || (req.user.id === advert.owner)){
                         Advert.deleteOne({ '_id': req.params.id}, function (err) {
                             if(err){
                                 res.status(400).send(err); 
@@ -109,7 +109,7 @@ router.put('/advert/:id',auth,async(req,res) => {
                 if (!advert){
                     res.status(404).send({error : "ID doesn't match any advert"})
                 } else {
-                    if (req.isAdmin || (req.user.email === advert.owner)){
+                    if (req.isAdmin || (req.user.id === advert.owner)){
                         Advert.updateOne({_id : req.params.id}, req.body, {new : true}, function(error, updatedAdvert) {
                             if (error) {
                                 res.status(400).send({error : error.message});
@@ -130,7 +130,7 @@ router.put('/advert/:id',auth,async(req,res) => {
 
 router.post('/advert/owner/:id', auth, async (req,res) => { 
     try{
-        if (req.isAdmin || req.user.email === req.params.id) {
+        if (req.isAdmin || req.user.id === req.params.id) {
             Advert.find({owner : req.params.id}).exec(function (error, adverts) {
                 if (error){
                     res.status(400).send(error); 
@@ -149,7 +149,7 @@ router.post('/advert/owner/:id', auth, async (req,res) => {
 // Deprecated, do not use
 router.post('/advert/owner', auth, async (req,res) => { 
     try{
-        if (req.isAdmin || req.user.email == req.body.owner) {
+        if (req.isAdmin || req.user.id == req.body.owner) {
             Advert.find({owner : req.body.owner}).exec(function (error, adverts) {
                 if (error){
                     res.status(400).send(error); 

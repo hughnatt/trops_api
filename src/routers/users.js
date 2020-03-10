@@ -57,7 +57,7 @@ router.get('/users/:id', async(req,res) => {
                     res.status(200).send(user)
                 }
             }
-        })
+        }).select('name email phoneNumber')
     } catch (error){
         res.status(500).send({error : error})
     }
