@@ -45,7 +45,7 @@ router.get('/users', adminAuth, async (req,res) => {
     }
 })
 
-router.get('/users/:id', adminAuth, async(req,res) => {
+router.get('/users/:id', async(req,res) => {
     try {
         User.findById(req.params.id, function(err,user) {
             if (err) {
