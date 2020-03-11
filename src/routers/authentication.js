@@ -12,14 +12,14 @@ router.get('/auth/google/:token', async (req,res) => {
         var decoded = jwt.decode(req.params.token)
         console.log(decoded)
     
-        var user = await User.findOne({email : decoded.email, authMethod : AuthMethod.GOOGLE})
+        var user = await User.findOne({email : decoded.email, authMethod : "GOOGLE"})
         console.log(user);
 
         if (!user){
             userBuilder = {}
             userBuilder.name = decoded.name
             userBuilder.email = decoded.email
-            userBuilder.authMethod = AuthMethod.GOOGLE
+            userBuilder.authMethod = "GOOGLE"
             user = new User(userBuilder)
             console.log(user.authMethod)
             await user.save()

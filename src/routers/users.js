@@ -49,7 +49,7 @@ router.get('/users', adminAuth, async (req,res) => {
 router.post('/users', async (req, res) => {
     // Create a new user
     try {
-        req.body.authMethod = AuthMethod.password;
+        req.body.authMethod = "PASSWORD";
         const user = new User(req.body)
         await user.save()
         const token = await user.generateAuthToken()
