@@ -1,5 +1,6 @@
 const express = require('express')
 const User = require('../models/User')
+const AuthMethod = require('../models/AuthMethod')
 const auth = require('../middleware/auth')
 const adminAuth = require('../middleware/admin-auth.js')
 
@@ -48,6 +49,7 @@ router.get('/users', adminAuth, async (req,res) => {
 router.post('/users', async (req, res) => {
     // Create a new user
     try {
+        req.body.authMethod = AuthMethod.password;
         const user = new User(req.body)
         await user.save()
         const token = await user.generateAuthToken()
