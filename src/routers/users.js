@@ -145,6 +145,43 @@ router.put('/users/me/password',auth, async (req, res) => {
     }
 })
 
+router.put('/users/favorites',auth, async (req, res) => {
+    try {
+        User.findByIdAndUpdate(
+            req.user._id, 
+            {$push : {favorites:req.body.favorite}}, 
+            {new: true}, 
+            (error, user) => {
+                // Handle any possible database errors
+                if (error) {
+                    return res.status(500).send(error);
+                }
+                return res.send(user.favorites);
+            })
+    } catch (error){
+        res.status(500).send({error : error.message})
+    }
+})
+
+
+router.delete('/users/favorites',auth, async (req, res) => {
+    try {
+        User.findByIdAndUpdate(
+            req.user._id, 
+            {$pull : {favorites:req.body.favorite}}, 
+            {new: true}, 
+            (error, user) => {
+                // Handle any possible database errors
+                if (error) {
+                    return res.status(500).send(error);
+                }
+                return res.send(user.favorites);
+            })
+    } catch (error){
+        res.status(500).send({error : error.message})
+    }
+})
+
 router.get('/users/:id', async(req,res) => {
     try {
         User.findById(req.params.id, function(err,user) {
