@@ -48,6 +48,7 @@ router.get('/users', adminAuth, async (req,res) => {
 router.post('/users', async (req, res) => {
     // Create a new user
     try {
+        req.body.authMethod = "PASSWORD";
         const user = new User(req.body)
         await user.save()
         const token = await user.generateAuthToken()
@@ -66,7 +67,7 @@ router.post('/users/login', async(req, res) => {
             return res.status(401).send({error: 'Login failed! Check authentication credentials'})
         }
         const token = await user.generateAuthToken()
-        res.send({ user, token })
+        res.status(200).send({ user, token })
     } catch (error) {
         res.status(400).send({error : error.message})
     }

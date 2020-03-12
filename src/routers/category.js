@@ -17,7 +17,7 @@ router.get('/category', async (req,res) => {
         res.status(200).send(response);
     }
     catch(error){
-        res.status(400).send({error : error.message})
+        res.status(500).send({error : error.message})
     }
 })
 
@@ -120,13 +120,13 @@ router.get('/category/:id', async (req,res) => {
     try {
         Category.findById(req.params.id, async function (error,category) {
             if (error) {
-                throw res.status(500).json({error : error.message});
+                throw res.status(500).send({error : error.message});
             } else {
                 if (category != null){
                     const processedCategory = await processCategory(category)
-                    res.status(200).json(processedCategory);
+                    res.status(200).send(processedCategory);
                 } else {
-                    res.status(404).json({error :"No category for this id"});
+                    res.status(404).send({error :"ID doesn't match any category"});
                 }
             }
         });

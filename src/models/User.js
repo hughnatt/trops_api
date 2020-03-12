@@ -28,8 +28,10 @@ const userSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
         minLength: 7
+    },
+    authMethod: {
+        type: String,
     },
     tokens: [{
         token: {
@@ -60,9 +62,10 @@ userSchema.methods.generateAuthToken = async function() {
 userSchema.statics.findByCredentials = async (email, password) => {
     // Search for a user by email and password.
     const user = await User.findOne({ email} )
-    if (!user) {
+    if (!user || !user.password) {
         throw new Error('Invalid login credentials' )
     }
+
     const isPasswordMatch = await bcrypt.compare(password, user.password)
     if (!isPasswordMatch) {
         throw new Error('Invalid login credentials')
