@@ -164,11 +164,11 @@ router.put('/users/favorites',auth, async (req, res) => {
 })
 
 
-router.delete('/users/favorites',auth, async (req, res) => {
+router.delete('/users/favorites/:id',auth, async (req, res) => {
     try {
         User.findByIdAndUpdate(
             req.user._id, 
-            {$pull : {favorites:req.body.favorite}}, 
+            {$pull : {favorites:req.params.id}}, 
             {new: true}, 
             (error, user) => {
                 // Handle any possible database errors
