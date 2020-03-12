@@ -48,17 +48,12 @@ router.post("/search", async(req,res) => {
             priceMax = 2000
         }
 
-        var location;
+        var location, distance;
         if (req.body.location != null && req.body.distance != null) {
             location = req.body.location;
-        } else {
-            location = [0.0, 0.0];
-        }
-
-        var distance;
-        if (req.body.distance != null) {
             distance = req.body.distance;
         } else {
+            location = [0.0, 0.0];
             distance = Number.MAX_SAFE_INTEGER;
         }
         
