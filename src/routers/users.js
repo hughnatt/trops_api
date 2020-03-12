@@ -164,6 +164,24 @@ router.put('/users/favorites',auth, async (req, res) => {
     }
 })
 
+router.get('/users/favorites',auth, async (req, res) => {
+    try {
+        User.findById(req.user.id, async function(error,user){
+            if (error){
+                res.status(400).send({error : error.message})
+            } else {
+                if (!user){
+                    res.status(404).send({error : "ID doesn't match any user"})
+                } else {
+                    res.status(200).send(user.favorites)
+                }
+            }
+        })
+    } catch (error) {
+        res.status(500).send({error : error.message})
+    }
+})
+
 
 router.delete('/users/favorites/:id',auth, async (req, res) => {
     try {
