@@ -26,6 +26,47 @@ schemes:
 - https
 paths:
   /users:
+    get:
+      tags:
+      - users
+      summary: Get all users
+      operationId: getAllUsers
+      produces:
+      - application/json
+      parameters:
+        - in: query
+          name: page
+          description: Page to query, starting at 0
+          type: integer
+        - in: query
+          name: size
+          description: Maximum number of documents to return
+          type: integer
+        - in: query
+          name: sort
+          description: "A tuple `field,order` field can be any user field, order either 1 or -1 for ascend/descend"
+          type: string
+      security:
+        - AdminToken: []
+      responses:
+        200:
+          description: Success
+          headers:
+            X-Total-Count:
+              type: integer
+              description: Total number of users
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Unhandled server error
+          schema:
+            $ref: '#/definitions/Error'
     post:
       tags:
       - users
@@ -61,6 +102,68 @@ paths:
                 type: string
         400:
           description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+  /users/{id}:
+    get:
+      tags:
+      - users
+      summary: Get user with specified id
+      operationId: getUserById
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+        description: User ID
+      security:
+        - AdminToken: []
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Unhandled server error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+      - users
+      summary: Delete user with specified id
+      operationId: deleteUserById
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+        description: User ID
+      security:
+        - AdminToken: []
+      responses:
+        204:
+          description: User deleted
+          schema:
+            description: Deleted user
+            $ref: '#/definitions/User'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Unhandled server error
           schema:
             $ref: '#/definitions/Error'
   /users/login:
@@ -107,7 +210,7 @@ paths:
       produces:
       - application/json
       security:
-        - JWT: []
+        - UserToken: []
       responses:
         200:
           description: Query successful
@@ -121,7 +224,7 @@ paths:
       summary: Delete current user's profile
       operationId: deleteUser
       security:
-      - JWT: []
+      - UserToken: []
       produces:
       - application/json
       responses:
@@ -139,7 +242,7 @@ paths:
       summary: Update current user's profile except password
       operationId: updateUser
       security:
-      - JWT: []
+      - UserToken: []
       produces:
       - application/json
       responses:
@@ -170,7 +273,7 @@ paths:
       produces:
       - application/json
       security:
-      - JWT: []
+      - UserToken: []
       parameters:
         - in: body
           name: body
@@ -243,7 +346,7 @@ paths:
           type: string
           description: "Advert ID"
       security:
-      - JWT: []
+      - UserToken: []
       produces:
       - application/json
       responses:
@@ -267,7 +370,7 @@ paths:
           type: string
           description: "Advert ID"
       security:
-      - JWT: []
+      - UserToken: []
       produces:
       - application/json
       responses:
@@ -315,19 +418,17 @@ paths:
     get:
       tags:
       - category
-      summary: Get all categories from DB
+      summary: Get all categories in tree form (recursive)
       operationId: getAllCategories
-      consumes:
-      - application/json
       produces:
       - application/json
       responses:
         200:
-          description: Get sucess
+          description: Success
           schema:
-            $ref: '#/definitions/Category'
-        400:
-          description: Get error
+            $ref: '#/definitions/CategoryTree'
+        500:
+          description: Unhandled server error
           schema:
             $ref: '#/definitions/Error'
     post:
@@ -339,42 +440,28 @@ paths:
       - application/json
       produces:
       - application/json
+      security:
+        - AdminToken: []
       parameters:
         - in : body
           name: body
           required: true
           schema:
-            type: object
-            properties:
-              categoryName:
-                type: string
+            $ref: '#/definitions/Category'
       responses:
         201:
-          description: Creation succes
-
-        400:
-          description: Get error
-          schema:
-            $ref: '#/definitions/Error'
-    delete:
-      tags:
-      - category
-      summary: Delete a category
-      operationId: deleteCategoryById
-      produces:
-      - application/json
-      responses:
-        202:
-          description: Advert removed succesfully
-        400:
-          description: Bad Request
+          description: Category created
+        401:
+          description: Not authorized. Admin token is needed to access this ressource.
+        500:
+          description: Unhandled server error
           schema:
             $ref: '#/definitions/Error'
   /category/{id}:
     get: 
       tags:
       - category
-      summary: Get category with specified id
+      summary: Get category with specified id in tree form (recursive)
       operationId: getCategoryById
       parameters:
         - in: path
@@ -388,15 +475,154 @@ paths:
         200:
           description: Get sucess
           schema:
-            $ref: '#/definitions/Category'
+            $ref: '#/definitions/CategoryTree'
         404:
-          description: No category with this id
+          description: ID doesn't match any category
           schema:
             $ref: '#/definitions/Error'
         500:
-          description: Server error
+          description: Unhandled server error
           schema:
             $ref: "#/definitions/Error"
+    put:
+      tags:
+      - category
+      summary: Update category with specified id
+      operationId: updateCategoryById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: "Category ID"
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Category'
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Updated successfully
+          schema:
+            $ref: "#/definitions/Category"
+        400:
+          description: Bad request
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: Not authorized. Admin token is needed to access this ressource.
+        500:
+          description: Unhandled server error
+          schema:
+            $ref: '#/definitions/Error'
+        
+    delete:
+      tags:
+      - category
+      summary: Delete a category
+      operationId: deleteCategoryById
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+        description: "Category ID"
+      produces:
+      - application/json
+      responses:
+        204:
+          description: Advert removed
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: Not authorized. Admin token is needed to access this ressource.
+        404:
+          description: ID doesn't match any category
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Unhandled server error
+          schema:
+            $ref: '#/definitions/Error'
+  /category/list:
+    get:
+      tags:
+      - category
+      summary: Get all categories as a list
+      operationId: getCategoryList
+      parameters:
+        - in: query
+          name: page
+          description: Page to query, starting at 0
+          type: integer
+        - in: query
+          name: size
+          description: Maximum number of documents to return
+          type: integer
+        - in: query
+          name: sort
+          description: "A tuple `field,order` field can be any category field, order either 1 or -1 for ascend/descend"
+          type: string
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Success
+          headers:
+            X-Total-Count:
+              type: integer
+              description: Total number of categories
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Category'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Unhandled server error
+          schema:
+            $ref: '#/definitions/Error'
+  /category/list/{id}:
+   get: 
+      tags:
+      - category
+      summary: Get category with specified id
+      operationId: getCategoryObjectById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: "Category ID"
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Get sucess
+          schema:
+            $ref: '#/definitions/Category'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ID doesn't match any category
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Unhandled server error
+          schema:
+            $ref: "#/definitions/Error"
+
+
   /search:
     post:
       tags:
@@ -408,7 +634,7 @@ paths:
       produces:
       - application/json
       security:
-      - JWT: []
+      - UserToken: []
       parameters:
         - in : body
           name: body
@@ -492,7 +718,11 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 securityDefinitions:
-  JWT:
+  UserToken:
+    type: apiKey
+    name: Authorization
+    in: header
+  AdminToken:
     type: apiKey
     name: Authorization
     in: header
@@ -546,7 +776,7 @@ definitions:
         type: array
         items: {}
       _id:
-        type: integer
+        type: string
       title:
         type: string
       price:
@@ -566,18 +796,39 @@ definitions:
       creationDate:
         type: string
         format: date
-  Category:
+  CategoryTree:
     type: object
     properties:
       _id:
-        type: integer
+        type: string
       name:
         type: string
       subcategories:
-        $ref: '#/definitions/Category'
+        $ref: '#/definitions/CategoryTree'
     example:
       _id: "5e3d2b5819bf021b7c5a1222"
       name: "Sports d'hiver"
       subcategories:
         _id: "6fehr58156g1b7c98jk5f"
         name: "Ski"
+  Category:
+    type: object
+    required:
+      - name
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      thumbnail:
+        type: string
+      parent:
+        type: string
+    example:
+      name: "Badminton"
+      parent: "5efhfe6lekfles0Lkfe56"
+      description: "Badminton description"
+      thumbnail: "https://example.com/placeholder.jpg"
+
