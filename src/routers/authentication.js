@@ -9,11 +9,8 @@ const router = express.Router()
 
 router.get('/auth/google/:token', async (req,res) => {
     try {
-        var decoded = jwt.decode(req.params.token)
-        console.log(decoded)
-    
+        const decoded = jwt.decode(req.params.token)
         var user = await User.findOne({email : decoded.email, authMethod : "GOOGLE"})
-        console.log(user);
 
         if (!user){
             userBuilder = {}
@@ -21,13 +18,11 @@ router.get('/auth/google/:token', async (req,res) => {
             userBuilder.email = decoded.email
             userBuilder.authMethod = "GOOGLE"
             user = new User(userBuilder)
-            console.log(user.authMethod)
             await user.save()
         }
        
         const token = await user.generateAuthToken()
         res.status(200).send({user,token});
-
     } catch(error) {
         res.status(500).send({error : error.message})
     }
