@@ -1,6 +1,5 @@
 const express = require('express')
 const jwt = require('jsonwebtoken')
-const AuthMethod = require('../models/AuthMethod')
 const User = require('../models/User')
 
 
